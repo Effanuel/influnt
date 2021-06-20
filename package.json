@@ -1,0 +1,30 @@
+{
+  "name": "influnt",
+  "version": "1.0.1",
+  "description": "",
+  "main": "src/index.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@testing-library/react": "^11.2.7",
+    "@types/react": "^17.0.11",
+    "prettier": "^2.3.1",
+    "react": "^17.0.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juozas Rimantas",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Effanuel/influnt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Effanuel/influnt/issues"
+  },
+  "homepage": "https://github.com/Effanuel/influnt#readme",
+  "keywords": [
+    "test",
+    "react"
+  ]
+}
