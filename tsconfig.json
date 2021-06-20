@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
-    "target": "es2016",
+    "target": "ES6",
     "module": "commonjs",
     // "sourceMap": true,
-    "lib": ["dom", "dom.iterable", "ES7"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -19,7 +19,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "removeComments": true,
-    "typeRoots": ["./@types"],
+    "typeRoots": ["@types"],
     "jsx": "react",
     "types": ["node"],
     "noFallthroughCasesInSwitch": true,
@@ -28,5 +28,5 @@
     "rootDir": "./src"
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "@types"]
 }
