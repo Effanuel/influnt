@@ -22,6 +22,7 @@
     "removeComments": true,
     "typeRoots": ["./@types"],
     "jsx": "react",
+    "types": ["node"],
     "noFallthroughCasesInSwitch": true
   },
   "exclude": ["node_modules"]
