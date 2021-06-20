@@ -3,8 +3,7 @@
     "baseUrl": "src",
     "target": "es2016",
     "module": "ESNext",
-    "noEmit": true,
-    "sourceMap": true,
+    // "sourceMap": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "noImplicitReturns": true,
@@ -23,7 +22,9 @@
     "typeRoots": ["./@types"],
     "jsx": "react",
     "types": ["node"],
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "outDir": "dist"
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }
