@@ -5,8 +5,8 @@ interface CommonSettings {
   spyModules?: SpyModule[];
 }
 
-export interface InfluntSettings extends CommonSettings {
-  providerHoc?: any;
+export interface InfluntSettings<T> extends CommonSettings {
+  providerHoc?: (extraArgs: T) => any
 }
 
 export interface ComponentSettings<P> extends CommonSettings {
