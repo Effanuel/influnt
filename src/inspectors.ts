@@ -1,4 +1,4 @@
-import {Inspector} from 'types';
+import {Inspector} from './types';
 
 export function exists(testID: string): Inspector<boolean> {
   return ({node}) => !!node.queryAllByTestId(testID).length;

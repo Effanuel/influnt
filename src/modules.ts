@@ -1,4 +1,4 @@
-import {SpyModule, SpyModuleConfig} from 'types';
+import {SpyModule, SpyModuleConfig} from './types';
 
 export function spyModule(id: string, {module, parseArgs}: SpyModuleConfig): SpyModule {
   return () => {

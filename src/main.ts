@@ -1,5 +1,5 @@
 import React from 'react';
-import {InfluntEngine} from 'influnt';
+import {InfluntEngine} from './influnt';
 import {ComponentSettings, InfluntSettings} from './types';
 
 export function configureInflunt(settings: InfluntSettings) {

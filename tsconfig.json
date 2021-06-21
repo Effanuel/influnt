@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": ".",
     "target": "ES6",
     "module": "commonjs",
     "sourceMap": true,
