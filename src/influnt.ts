@@ -1,6 +1,6 @@
 import {fireEvent, Matcher, render, RenderResult} from '@testing-library/react';
 import React from 'react';
-import {Context, Config, Inspector, Step, Snapshot} from './types';
+import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule} from './types';
 import Queue from './Queue';
 
 type ForgedPromise = any;
@@ -10,12 +10,14 @@ export class InfluntEngine<P> {
   private steps: Step[] = [];
   private snapshot: Snapshot = {api: {}};
   private component: React.ComponentType<P>;
-  private parameters: Config<P>;
+  private settings: ComponentSettings<P>;
+  private spyModulesInterop: ReturnType<SpyModule>[] = [];
 
-  constructor(component: React.ComponentType<P>, parameters: Config<P>) {
+  constructor(component: React.ComponentType<P>, settings: ComponentSettings<P>) {
     this.promiseQueue = new Queue();
     this.component = component;
-    this.parameters = parameters;
+    this.settings = settings;
+    this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
   }
 
   private registerStep(step: Step): this {
@@ -24,7 +26,7 @@ export class InfluntEngine<P> {
   }
 
   private getContext = (): Context => {
-    const node = render(React.createElement(this.component, this.parameters.passProps));
+    const node = render(React.createElement(this.component, this.settings.passProps));
     const locateAll = (testID: Matcher, options?: {index?: number}) => {
       const index = options?.index ?? 0;
       const found = node.queryAllByTestId(testID);
@@ -36,6 +38,19 @@ export class InfluntEngine<P> {
     };
     return {node, locateAll};
   };
+
+  private parseSpyModuleInterop() {
+    const interopLog: {[key: string]: any} = {};
+    this.spyModulesInterop.forEach((module) => {
+      const key = Object.keys(module)[0];
+      interopLog[key] = [...(interopLog[key] ?? []), module[key]].filter(Boolean);
+    });
+    return interopLog;
+  }
+
+  private result() {
+    return {...this.snapshot, ...this.parseSpyModuleInterop()};
+  }
 
   press(testID: string): this {
     return this.registerStep(({locateAll}) => {
@@ -50,6 +65,10 @@ export class InfluntEngine<P> {
       const found = locateAll(testID);
       fireEvent.change(found, {target: {value: String(value)}});
     });
+  }
+
+  expectExists(testID: string): this {
+    return this.registerStep(({locateAll}) => void locateAll(testID, {index: 0})); // TODO: use inspectors
   }
 
   inspect(inspection: Record<string, Inspector<unknown>>): this {
@@ -85,7 +104,7 @@ export class InfluntEngine<P> {
       }
 
       this.clearEmptySnaps();
-      return resolve(this.snapshot);
+      return resolve(this.result());
     } catch (e) {
       return reject(e);
     }

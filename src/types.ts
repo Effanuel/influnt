@@ -1,17 +1,20 @@
 import {Matcher, RenderResult} from '@testing-library/react';
 // using interfaces for performance reasons
 
-export interface InfluntSettings {
+interface CommonSettings {
+  spyModules?: SpyModule[];
+}
+
+export interface InfluntSettings extends CommonSettings {
   providerHoc?: any;
-  spyModules?: any;
+}
+
+export interface ComponentSettings<P> extends CommonSettings {
+  passProps?: P;
 }
 
 export interface Inspector<T> {
   (context: Context): T;
-}
-
-export interface Config<P> {
-  passProps?: P;
 }
 
 export interface Context {
@@ -29,4 +32,13 @@ export interface ReservedSnapshot {
 
 export interface Snapshot extends ReservedSnapshot {
   [key: string]: unknown;
+}
+
+export interface SpyModule extends Brand {
+  (): {[key: string]: any};
+}
+
+export interface SpyModuleConfig {
+  module: any;
+  parseArgs: (value: any[]) => any;
 }
