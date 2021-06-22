@@ -6,7 +6,7 @@ interface CommonSettings {
 }
 
 export interface InfluntSettings<T> extends CommonSettings {
-  providerHoc?: (extraArgs: T) => any
+  providerHoc?: (extraArgs: T) => <C>(args: React.ComponentType<Readonly<InferProps<C>>>) => C;
 }
 
 export interface ComponentSettings<P> extends CommonSettings {
@@ -41,4 +41,8 @@ export interface SpyModule extends Brand {
 export interface SpyModuleConfig {
   module: any;
   parseArgs: (value: any[]) => any;
+}
+
+export interface HocFacadeConfig<P extends Record<string, unknown>> {
+  providers: (React.ComponentType<any> | [React.ComponentType<any>, {props: P}])[];
 }

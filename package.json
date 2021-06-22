@@ -1,14 +1,16 @@
 {
   "name": "influnt",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@testing-library/react": "^11.2.7",
+    "@types/hoist-non-react-statics": "^3.3.1",
     "@types/jest": "^26.0.23",
     "@types/react": "^17.0.11",
+    "hoist-non-react-statics": "^3.3.2",
     "jest": "^27.0.4",
     "prettier": "^2.3.1",
     "react": "^17.0.2",
