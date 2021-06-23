@@ -5,27 +5,29 @@ import Queue from './Queue';
 
 type ForgedPromise = any;
 
-export class InfluntEngine<P> {
+export class InfluntEngine<P, E> {
   private promiseQueue: Queue;
-  private steps: Step[] = [];
+  private steps: Step<E>[] = [];
   private snapshot: Snapshot = {api: {}};
   private component: React.ComponentType<P>;
   private settings: ComponentSettings<P>;
   private spyModulesInterop: ReturnType<SpyModule>[] = [];
+  private extraArgs: E;
 
-  constructor(component: React.ComponentType<P>, settings: ComponentSettings<P>) {
+  constructor(component: React.ComponentType<P>, settings: ComponentSettings<P>, extraArgs: E) {
     this.promiseQueue = new Queue();
     this.component = component;
     this.settings = settings;
     this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
+    this.extraArgs = extraArgs;
   }
 
-  private registerStep(step: Step): this {
+  private registerStep(step: Step<E>): this {
     this.steps.push(step);
     return this;
   }
 
-  private getContext = (): Context => {
+  private getContext = (): Context<E> => {
     const node = render(React.createElement(this.component, this.settings.passProps));
     const locateAll = (testID: Matcher, options?: {index?: number}) => {
       const index = options?.index ?? 0;
@@ -36,7 +38,7 @@ export class InfluntEngine<P> {
       if (!found.length) throw new Error(`Element with testID={${testID}} was not found.`);
       return found[index];
     };
-    return {node, locateAll};
+    return {node, locateAll, extraArgs: this.extraArgs};
   };
 
   private parseSpyModuleInterop() {
@@ -71,7 +73,7 @@ export class InfluntEngine<P> {
     return this.registerStep(({locateAll}) => void locateAll(testID, {index: 0})); // TODO: use inspectors
   }
 
-  inspect(inspection: Record<string, Inspector<unknown>>): this {
+  inspect(inspection: Record<string, Inspector<unknown, E>>): this {
     return this.registerStep((context) => {
       for (const [key, assert] of Object.entries(inspection)) {
         if (Object.keys(this.snapshot).includes(key)) throw new Error(`Inspection key ${key} is already in use`);
@@ -89,7 +91,7 @@ export class InfluntEngine<P> {
   //   });
   // }
 
-  private clearEmptySnaps() {
+  private clearEmptySnaps(): void {
     Object.entries(this.snapshot).forEach(([snap, value]) => {
       const isObjectEmpty = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
       if (isObjectEmpty) delete this.snapshot[snap];

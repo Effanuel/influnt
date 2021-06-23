@@ -13,17 +13,18 @@ export interface ComponentSettings<P> extends CommonSettings {
   passProps?: P;
 }
 
-export interface Inspector<T> {
-  (context: Context): T;
+export interface Inspector<T, C = never> {
+  (context: Context<C>): T;
 }
 
-export interface Context {
+export interface Context<T> {
   node: RenderResult;
   locateAll: (testID: Matcher, options?: {index?: number}) => HTMLElement;
+  extraArgs: T;
 }
 
-export interface Step {
-  (context: Context): void | Promise<unknown>;
+export interface Step<C> {
+  (context: Context<C>): void | Promise<unknown>;
 }
 
 export interface ReservedSnapshot {

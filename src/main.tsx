@@ -4,7 +4,9 @@ import {InfluntEngine} from './influnt';
 import {ComponentSettings, HocFacadeConfig, InfluntSettings} from './types';
 
 export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeConfig<P>) {
-  return function <C>(WrappedComponent: React.ComponentType<Readonly<InferProps<C>>>): {
+  return function <C extends React.ComponentType<Readonly<InferProps<C>>>>(
+    WrappedComponent: React.ComponentType<Readonly<InferProps<C>>>,
+  ): {
     component: React.ComponentType<Readonly<InferProps<C>>>;
     hocProps: P;
   } {
@@ -36,6 +38,6 @@ export function configureInflunt<T>(settings: InfluntSettings<T>) {
     extraArgs: T,
   ) => {
     const node = settings.providerHoc?.(extraArgs)(component) ?? component;
-    return () => new InfluntEngine(node, componentSettings);
+    return () => new InfluntEngine(node, componentSettings, extraArgs);
   };
 }
