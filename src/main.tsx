@@ -35,7 +35,7 @@ export function configureInflunt<T>(settings: InfluntSettings<T>) {
   return <C extends React.ComponentType<Readonly<InferProps<C>>>>(
     component: C,
     componentSettings: ComponentSettings<InferProps<C>> = {},
-    extraArgs: T,
+    extraArgs: T extends unknown ? void : T,
   ) => {
     const node = settings.providerHoc?.(extraArgs)(component) ?? component;
     return () => new InfluntEngine(node, componentSettings, extraArgs);

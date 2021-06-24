@@ -1,5 +1,5 @@
 export * from './main';
-export * from './inspectors';
+export {isDisabled, exists, textOf, countOf} from './inspectors';
 export * from './influnt';
 export * from './modules';
 

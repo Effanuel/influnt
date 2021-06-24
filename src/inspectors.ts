@@ -13,5 +13,5 @@ export function countOf(testID: string): Inspector<number> {
 }
 
 export function isDisabled(testID: string): Inspector<boolean> {
-  return ({node}) => !(node.queryByTestId(testID)?.getAttribute('disabled') === null);
+  return ({locateAll}) => !(locateAll(testID).getAttribute('disabled') === null);
 }

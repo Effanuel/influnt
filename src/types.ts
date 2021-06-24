@@ -6,14 +6,16 @@ interface CommonSettings {
 }
 
 export interface InfluntSettings<T> extends CommonSettings {
-  providerHoc?: (extraArgs: T) => <C>(args: React.ComponentType<Readonly<InferProps<C>>>) => C;
+  providerHoc?: (
+    extraArgs: T extends unknown ? void : T,
+  ) => <C>(args: React.ComponentType<Readonly<InferProps<C>>>) => C;
 }
 
 export interface ComponentSettings<P> extends CommonSettings {
   passProps?: P;
 }
 
-export interface Inspector<T, C = never> {
+export interface Inspector<T, C = void> {
   (context: Context<C>): T;
 }
 
