@@ -1,11 +1,11 @@
 import {fireEvent, Matcher, render, RenderResult} from '@testing-library/react';
 import React from 'react';
-import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule} from './types';
+import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ComponentInfo} from './types';
 import Queue from './Queue';
 
 type ForgedPromise = any;
 
-export class InfluntEngine<P, E> {
+export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>, P extends InferProps<C>> {
   private promiseQueue: Queue;
   private steps: Step<E>[] = [];
   private snapshot: Snapshot = {api: {}};
@@ -14,9 +14,9 @@ export class InfluntEngine<P, E> {
   private spyModulesInterop: ReturnType<SpyModule>[] = [];
   private extraArgs: E;
 
-  constructor(component: React.ComponentType<P>, settings: ComponentSettings<P>, extraArgs: E) {
+  constructor(component: ComponentInfo<C>, settings: ComponentSettings<P>, extraArgs: E) {
     this.promiseQueue = new Queue();
-    this.component = component;
+    this.component = component.component;
     this.settings = settings;
     this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
     this.extraArgs = extraArgs;
@@ -32,8 +32,7 @@ export class InfluntEngine<P, E> {
     const locateAll = (testID: Matcher, options?: {index?: number}) => {
       const index = options?.index ?? 0;
       const found = node.queryAllByTestId(testID);
-      if (found.length > 1 && options?.index === undefined)
-        throw new Error(`Multiple elements for testID={${testID}} were found.`);
+      if (found.length > 1 && options?.index === undefined) throw new Error(`Multiple elements for testID={${testID}} were found.`);
       if (index > found.length) throw new Error(`Matching index out of range.`);
       if (!found.length) throw new Error(`Element with testID={${testID}} was not found.`);
       return found[index];

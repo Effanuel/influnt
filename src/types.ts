@@ -6,13 +6,19 @@ interface CommonSettings {
 }
 
 export interface InfluntSettings<T> extends CommonSettings {
-  providerHoc?: (
-    extraArgs: T extends unknown ? void : T,
-  ) => <C>(args: React.ComponentType<Readonly<InferProps<C>>>) => C;
+  providerHoc?: (extraArgs: T extends unknown ? void : T) => <C>(args: React.ComponentType<InferProps<C>>) => {
+    component: React.ComponentType<InferProps<C>>;
+    hocProps: any;
+  };
 }
 
 export interface ComponentSettings<P> extends CommonSettings {
   passProps?: P;
+}
+
+export interface SuiteSettings<C, E> {
+  componentSettingsOverride?: ComponentSettings<InferProps<C>>;
+  extraArgsOverride?: E;
 }
 
 export interface Inspector<T, C = void> {
@@ -48,4 +54,9 @@ export interface SpyModuleConfig {
 
 export interface HocFacadeConfig<P extends Record<string, unknown>> {
   providers: (React.ComponentType<any> | [React.ComponentType<any>, {props: P}])[];
+}
+
+export interface ComponentInfo<C extends React.ComponentType<InferProps<C>>> {
+  component: React.ComponentType<InferProps<C>>;
+  hocProps: InferProps<C>;
 }

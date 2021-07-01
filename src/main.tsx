@@ -1,16 +1,11 @@
 import React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import {InfluntEngine} from './influnt';
-import {ComponentSettings, HocFacadeConfig, InfluntSettings} from './types';
+import {ComponentInfo, ComponentSettings, HocFacadeConfig, InfluntSettings, SuiteSettings} from './types';
 
 export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeConfig<P>) {
-  return function <C extends React.ComponentType<Readonly<InferProps<C>>>>(
-    WrappedComponent: React.ComponentType<Readonly<InferProps<C>>>,
-  ): {
-    component: React.ComponentType<Readonly<InferProps<C>>>;
-    hocProps: P;
-  } {
-    const hocProps = {} as P;
+  return function <C extends React.ComponentType<InferProps<C>>>(WrappedComponent: React.ComponentType<any>): ComponentInfo<C> {
+    const hocProps = {} as InferProps<C>;
     class WithProviders extends React.PureComponent<InferProps<C>> {
       render() {
         return config.providers.reduce((node, HocProvider) => {
@@ -25,19 +20,23 @@ export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeCo
     }
 
     return {
-      component: hoistNonReactStatics(WithProviders, WrappedComponent) as React.ComponentType<Readonly<InferProps<C>>>,
+      component: hoistNonReactStatics(WithProviders, WrappedComponent) as C,
       hocProps,
     };
   };
 }
 
 export function configureInflunt<T>(settings: InfluntSettings<T>) {
-  return <C extends React.ComponentType<Readonly<InferProps<C>>>>(
+  return <C extends React.ComponentType<InferProps<C>>>(
     component: C,
     componentSettings: ComponentSettings<InferProps<C>> = {},
     extraArgs: T extends unknown ? void : T,
   ) => {
-    const node = settings.providerHoc?.(extraArgs)(component) ?? component;
-    return () => new InfluntEngine(node, componentSettings, extraArgs);
+    const componentInfo: ComponentInfo<C> = settings.providerHoc?.(extraArgs)(component) ?? {component, hocProps: {} as never};
+    return ({componentSettingsOverride, extraArgsOverride}: SuiteSettings<C, T extends unknown ? void : T> = {}) => {
+      const settings = {...componentSettings, ...componentSettingsOverride};
+
+      return new InfluntEngine(componentInfo, settings, extraArgsOverride ?? extraArgs);
+    };
   };
 }
