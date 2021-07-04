@@ -32,7 +32,7 @@ export interface SuiteSettings<P, E> extends CommonSettings {
   extraArgs?: E extends void ? void : E;
 }
 
-export interface Inspector<T, C = void> {
+export interface Inspector<T, C = unknown> {
   (context: Context<C>): T;
 }
 
@@ -73,11 +73,16 @@ export interface ComponentInfo<C extends React.ComponentType<InferProps<C>>> {
 }
 
 export interface Tracker {
-  (targetKey: string | symbol, mocks: ForgedResponse[], ...args: unknown[]): any;
+  (targetKey: string | symbol, mocks: ForgedResponse[], logger: Logger, ...args: unknown[]): any;
+}
+
+export interface Logger {
+  (mock: ForgedResponse): void;
 }
 
 export interface NetworkProxy {
   setNetworkTarget: (networkTarget: Constructor) => Constructor<Record<string, unknown>>;
   setMocks: (mocks: ForgedResponse[]) => void;
   setTracker: (tracker: Tracker) => void;
+  setLogger: (logger: Logger) => void;
 }
