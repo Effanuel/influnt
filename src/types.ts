@@ -1,38 +1,47 @@
 import {Matcher, RenderResult} from '@testing-library/react';
 // using interfaces for performance reasons
 
+export interface ForgedResponse<P extends unknown[] = unknown[], R = unknown> {
+  readonly _promiseId: symbol;
+  id: string;
+  response: R;
+  params: P;
+}
+
 interface CommonSettings {
   spyModules?: SpyModule[];
+  mocks?: Record<string, ForgedResponse> | ForgedResponse | ForgedResponse[];
 }
 
-export interface InfluntSettings<T> extends CommonSettings {
-  providerHoc?: (extraArgs: T extends unknown ? void : T) => <C>(args: React.ComponentType<InferProps<C>>) => {
-    component: React.ComponentType<InferProps<C>>;
-    hocProps: any;
-  };
+export interface InfluntSettings<E> extends CommonSettings {
+  providerHoc?: (
+    extraArgs: E extends void ? void : E,
+  ) => <C>(args: React.ComponentType<InferProps<C>>) => React.ComponentType<InferProps<C>>;
+  networkProxy?: NetworkProxy;
 }
 
-export interface ComponentSettings<P> extends CommonSettings {
+export interface ComponentSettings<P, E> extends CommonSettings {
   passProps?: P;
+  extraArgs?: E extends void ? void : E;
 }
 
-export interface SuiteSettings<C, E> {
-  componentSettingsOverride?: ComponentSettings<InferProps<C>>;
-  extraArgsOverride?: E;
+export interface SuiteSettings<P, E> extends CommonSettings {
+  passProps?: P;
+  extraArgs?: E extends void ? void : E;
 }
 
 export interface Inspector<T, C = void> {
   (context: Context<C>): T;
 }
 
-export interface Context<T> {
+export interface Context<E> {
   node: RenderResult;
   locateAll: (testID: Matcher, options?: {index?: number}) => HTMLElement;
-  extraArgs: T;
+  extraArgs: E;
 }
 
-export interface Step<C> {
-  (context: Context<C>): void | Promise<unknown>;
+export interface Step<E> {
+  (context: Context<E>): void | Promise<unknown>;
 }
 
 export interface ReservedSnapshot {
@@ -59,4 +68,14 @@ export interface HocFacadeConfig<P extends Record<string, unknown>> {
 export interface ComponentInfo<C extends React.ComponentType<InferProps<C>>> {
   component: React.ComponentType<InferProps<C>>;
   hocProps: InferProps<C>;
+}
+
+export interface Tracker {
+  (targetKey: string | symbol, mocks: ForgedResponse[], ...args: unknown[]): any;
+}
+
+export interface NetworkProxy {
+  setNetworkTarget: (networkTarget: Constructor) => Constructor<Record<string, unknown>>;
+  setMocks: (mocks: ForgedResponse[]) => void;
+  setTracker: (tracker: Tracker) => void;
 }

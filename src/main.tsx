@@ -2,16 +2,15 @@ import React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import {InfluntEngine} from './influnt';
 import {ComponentInfo, ComponentSettings, HocFacadeConfig, InfluntSettings, SuiteSettings} from './types';
+import {toArray} from './util';
 
 export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeConfig<P>) {
-  return function <C extends React.ComponentType<InferProps<C>>>(WrappedComponent: React.ComponentType<any>): ComponentInfo<C> {
-    const hocProps = {} as InferProps<C>;
+  return function <C extends React.ComponentType<InferProps<C>>>(WrappedComponent: React.ComponentType<any>): C {
     class WithProviders extends React.PureComponent<InferProps<C>> {
       render() {
         return config.providers.reduce((node, HocProvider) => {
           if (Array.isArray(HocProvider)) {
             const [Component, {props}] = HocProvider;
-            Object.assign(hocProps, props);
             return <Component {...props}>{node}</Component>;
           }
           return <HocProvider>{node}</HocProvider>;
@@ -19,24 +18,21 @@ export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeCo
       }
     }
 
-    return {
-      component: hoistNonReactStatics(WithProviders, WrappedComponent) as C,
-      hocProps,
-    };
+    return hoistNonReactStatics(WithProviders, WrappedComponent) as C;
   };
 }
 
-export function configureInflunt<T>(settings: InfluntSettings<T>) {
-  return <C extends React.ComponentType<InferProps<C>>>(
-    component: C,
-    componentSettings: ComponentSettings<InferProps<C>> = {},
-    extraArgs: T extends unknown ? void : T,
-  ) => {
-    const componentInfo: ComponentInfo<C> = settings.providerHoc?.(extraArgs)(component) ?? {component, hocProps: {} as never};
-    return ({componentSettingsOverride, extraArgsOverride}: SuiteSettings<C, T extends unknown ? void : T> = {}) => {
-      const settings = {...componentSettings, ...componentSettingsOverride};
+export function configureInflunt<T = void>(settings: InfluntSettings<T>) {
+  return <C extends React.ComponentType<InferProps<C>>>(component: C, componentSettings: ComponentSettings<InferProps<C>, T> = {}) => {
+    return (suiteOverrides: SuiteSettings<InferProps<C>, T> = {}) => {
+      const extraArgs = suiteOverrides.extraArgs ?? (componentSettings.extraArgs as T extends void ? void : T);
+      const element = settings.providerHoc?.(extraArgs)(component) ?? component;
+      const mocks = [...toArray(componentSettings.mocks), ...toArray(suiteOverrides.mocks)];
+      const passProps = suiteOverrides.passProps ?? componentSettings.passProps;
 
-      return new InfluntEngine(componentInfo, settings, extraArgsOverride ?? extraArgs);
+      settings.networkProxy?.setMocks(mocks);
+
+      return new InfluntEngine(element, {passProps, mocks}, extraArgs, settings.networkProxy);
     };
   };
 }

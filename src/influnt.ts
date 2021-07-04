@@ -1,25 +1,33 @@
-import {fireEvent, Matcher, render, RenderResult} from '@testing-library/react';
+import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
-import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ComponentInfo} from './types';
+import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
 import Queue from './Queue';
+import {isObject, promisify, toArray} from './util';
 
-type ForgedPromise = any;
-
-export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>, P extends InferProps<C>> {
+export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   private promiseQueue: Queue;
   private steps: Step<E>[] = [];
   private snapshot: Snapshot = {api: {}};
-  private component: React.ComponentType<P>;
-  private settings: ComponentSettings<P>;
+  private component: React.ComponentType<InferProps<C>>;
+  private settings: ComponentSettings<InferProps<C>, E>;
   private spyModulesInterop: ReturnType<SpyModule>[] = [];
+  private mocks: ForgedResponse[];
   private extraArgs: E;
+  private networkProxy?: NetworkProxy;
 
-  constructor(component: ComponentInfo<C>, settings: ComponentSettings<P>, extraArgs: E) {
+  constructor(
+    component: React.ComponentType<InferProps<C>>,
+    settings: ComponentSettings<InferProps<C>, E>,
+    extraArgs: E,
+    networkProxy?: NetworkProxy,
+  ) {
     this.promiseQueue = new Queue();
-    this.component = component.component;
+    this.component = component;
     this.settings = settings;
     this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
     this.extraArgs = extraArgs;
+    this.mocks = toArray(settings.mocks);
+    this.networkProxy = networkProxy;
   }
 
   private registerStep(step: Step<E>): this {
@@ -68,10 +76,6 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>, P ex
     });
   }
 
-  expectExists(testID: string): this {
-    return this.registerStep(({locateAll}) => void locateAll(testID, {index: 0})); // TODO: use inspectors
-  }
-
   inspect(inspection: Record<string, Inspector<unknown, E>>): this {
     return this.registerStep((context) => {
       for (const [key, assert] of Object.entries(inspection)) {
@@ -81,19 +85,17 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>, P ex
     });
   }
 
-  // resolve<T>(forgedPromises: Record<string, ForgedPromise>) {
-  //   this.promiseQueue.enqueue(promisify(forgedPromises));
-  //   Object.assign(this.snapshot['api'], forgedPromises);
-
-  //   return this.registerStep(async () => {
-  //     await act(async () => Object.keys(forgedPromises).forEach((k) => this.promiseQueue.dequeue(k)));
-  //   });
-  // }
+  resolve(forgedPromise: ForgedResponse) {
+    this.promiseQueue.enqueue(promisify(forgedPromise));
+    return this.registerStep(async () => {
+      await act(async () => void this.promiseQueue.dequeue(forgedPromise._promiseId as any));
+    });
+  }
 
   private clearEmptySnaps(): void {
     Object.entries(this.snapshot).forEach(([snap, value]) => {
-      const isObjectEmpty = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
-      if (isObjectEmpty) delete this.snapshot[snap];
+      const isObjectAndEmpty = isObject(value) && Object.keys(value).length === 0;
+      if (isObjectAndEmpty) delete this.snapshot[snap];
     });
   }
 
