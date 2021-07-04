@@ -1,11 +1,9 @@
 import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
 import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
-import Queue from './Queue';
-import {isObject, promisify, toArray} from './util';
+import {isObject, toArray} from './util';
 
 export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
-  private promiseQueue: Queue;
   private steps: Step<E>[] = [];
   private snapshot: Snapshot = {api: {}};
   private component: React.ComponentType<InferProps<C>>;
@@ -21,7 +19,6 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     extraArgs: E,
     networkProxy?: NetworkProxy,
   ) {
-    this.promiseQueue = new Queue();
     this.component = component;
     this.settings = settings;
     this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
@@ -86,9 +83,8 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   }
 
   resolve(forgedPromise: ForgedResponse) {
-    this.promiseQueue.enqueue(promisify(forgedPromise));
     return this.registerStep(async () => {
-      await act(async () => void this.promiseQueue.dequeue(forgedPromise._promiseId as any));
+      await act(async () => void forgedPromise.resolve());
     });
   }
 
@@ -99,7 +95,7 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     });
   }
 
-  private async then(resolve: (value: Snapshot) => Promise<never>, reject: (value: unknown) => Promise<never>) {
+  async then(resolve: (value: Snapshot) => Promise<never>, reject: (value: unknown) => Promise<never>) {
     const context = this.getContext();
     try {
       for (const step of this.steps) {

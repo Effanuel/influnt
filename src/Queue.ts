@@ -6,7 +6,7 @@ enum State {
   STOPPED = 2,
 }
 
-type Tasks<T> = {[key: string]: () => Promise<T>};
+type Tasks<T> = Record<string, () => Promise<T>>;
 
 export default class Queue<T = any> extends EventEmitter {
   private tasks: Tasks<T> = {};

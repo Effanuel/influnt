@@ -15,10 +15,16 @@ export function toArray<T>(value: T | T[] | Record<string, T> | undefined): T[] 
   return [value];
 }
 
+function createDeferredPromise<T>(): [Promise<T>, (value: T) => void] {
+  let resolver: (value: T) => void = () => {};
+  return [new Promise<T>((resolve) => void (resolver = resolve)), resolver];
+}
+
 export function respond<P extends unknown[]>(responseId: string, params: [...P]) {
   return {
     with<R>(response: R): ForgedResponse<P, R> {
-      return {id: responseId, _promiseId: Symbol(responseId), response, params};
+      const [promise, resolve] = createDeferredPromise<R>();
+      return {id: responseId, _promiseId: Symbol(responseId), response, promise, resolve: () => resolve(response), params};
     },
   };
 }

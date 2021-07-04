@@ -6,6 +6,8 @@ export interface ForgedResponse<P extends unknown[] = unknown[], R = unknown> {
   id: string;
   response: R;
   params: P;
+  promise: Promise<R>;
+  resolve: () => void;
 }
 
 interface CommonSettings {
