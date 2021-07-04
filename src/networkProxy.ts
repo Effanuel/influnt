@@ -1,6 +1,6 @@
 import {ForgedResponse, NetworkProxy, Tracker} from './types';
 
-export default function createNetworkProxy(): NetworkProxy {
+export function createNetworkProxy(): NetworkProxy {
   let mocks: ForgedResponse[] = [];
   let tracker: Tracker = (targetKey, mocks, ...args) => {
     console.warn('Tracker is not setup');
