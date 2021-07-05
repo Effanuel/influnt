@@ -1,9 +1,5 @@
 import {ForgedResponse} from './types';
 
-export function promisify<P extends unknown[], R>(item: ForgedResponse<P, R>): Record<symbol, () => Promise<ForgedResponse<P, R>>> {
-  return {[item._promiseId]: () => Promise.resolve(item)};
-}
-
 export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -24,7 +20,7 @@ export function respond<P extends unknown[]>(responseId: string, params: [...P])
   return {
     with<R>(response: R): ForgedResponse<P, R> {
       const [promise, resolve] = createDeferredPromise<R>();
-      return {id: responseId, _promiseId: Symbol(responseId), response, promise, resolve: () => resolve(response), params};
+      return {id: responseId, response, promise, resolve: () => resolve(response), params};
     },
   };
 }

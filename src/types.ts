@@ -1,8 +1,7 @@
+// Using interfaces for performance reasons
 import {Matcher, RenderResult} from '@testing-library/react';
-// using interfaces for performance reasons
 
 export interface ForgedResponse<P extends unknown[] = unknown[], R = unknown> {
-  readonly _promiseId: symbol;
   id: string;
   response: R;
   params: P;
@@ -28,7 +27,7 @@ export interface ComponentSettings<P, E> extends CommonSettings {
 }
 
 export interface SuiteSettings<P, E> extends CommonSettings {
-  passProps?: P;
+  passProps?: Partial<P>;
   extraArgs?: E extends void ? void : E;
 }
 
@@ -60,16 +59,11 @@ export interface SpyModule extends Brand {
 
 export interface SpyModuleConfig {
   module: any;
-  parseArgs: (value: any[]) => any;
+  parseArgs: (value: unknown[]) => any;
 }
 
 export interface HocFacadeConfig<P extends Record<string, unknown>> {
   providers: (React.ComponentType<any> | [React.ComponentType<any>, {props: P}])[];
-}
-
-export interface ComponentInfo<C extends React.ComponentType<InferProps<C>>> {
-  component: React.ComponentType<InferProps<C>>;
-  hocProps: InferProps<C>;
 }
 
 export interface Tracker {

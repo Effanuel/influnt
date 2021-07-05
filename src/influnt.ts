@@ -49,7 +49,8 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     const interopLog: {[key: string]: any} = {};
     this.spyModulesInterop.forEach((module) => {
       const key = Object.keys(module)[0];
-      interopLog[key] = [...(interopLog[key] ?? []), module[key]].filter(Boolean);
+      const interop = [...(interopLog[key] ?? []), ...module[key]].filter(Boolean);
+      if (interop.length) interopLog[key] = interop;
     });
     return interopLog;
   }

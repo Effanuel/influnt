@@ -3,8 +3,6 @@ import {configureInflunt} from '../src/main';
 import {countOf, exists, isDisabled, textOf} from '../src/inspectors';
 
 function TestComponent() {
-  const [counter, setCounter] = React.useState<number>(0);
-
   return (
     <div>
       <span data-testid="Title1">Title 1 Text</span>
@@ -41,8 +39,8 @@ function TestComponent() {
 }
 
 describe('Inspectors', () => {
-  const createRenderer = configureInflunt({});
-  const render = createRenderer(TestComponent, {});
+  const createRenderer = configureInflunt();
+  const render = createRenderer(TestComponent);
 
   it('textOf', async () => {
     const result = await render().inspect({title1: textOf('Title1'), title2: textOf('Title2'), title3: textOf('Title3')});

@@ -22,8 +22,8 @@ function TestComponent() {
 }
 
 describe('actions', () => {
-  const createRenderer = configureInflunt({});
-  const render = createRenderer(TestComponent, {});
+  const createRenderer = configureInflunt();
+  const render = createRenderer(TestComponent);
 
   it('should increment a counter', async () => {
     const result = await render()
