@@ -5,7 +5,7 @@ import {isObject, toArray} from './util';
 
 export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   private steps: Step<E>[] = [];
-  private snapshot: Snapshot = {api: []};
+  private snapshot: Snapshot = {network: []};
   private component: React.ComponentType<InferProps<C>>;
   private settings: ComponentSettings<InferProps<C>, E>;
   private spyModulesInterop: ReturnType<SpyModule>[] = [];
@@ -97,9 +97,8 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
 
   async then(resolve: (value: Snapshot) => Promise<never>, reject: (value: unknown) => Promise<never>) {
     const context = this.getContext();
-    this.networkProxy?.setLogger((mock) => {
-      this.snapshot.api.push({[mock.id]: mock.response});
-    });
+    this.networkProxy?.setLogger((id, value) => void this.snapshot.network.push({[id]: value}));
+
     try {
       for (const step of this.steps) {
         await step(context);

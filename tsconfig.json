@@ -27,6 +27,7 @@
     "outDir": "dist",
     "rootDir": "./src"
   },
+  "disableAutomaticTypeAcquisition": true,
   "exclude": ["node_modules", "dist"],
   "include": ["src/**/*.ts", "src/**/*.tsx", "@types"]
 }

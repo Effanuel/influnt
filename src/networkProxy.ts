@@ -1,9 +1,9 @@
-import {ForgedResponse, NetworkProxy, Tracker} from './types';
+import {ForgedResponse, Logger, NetworkProxy, Tracker} from './types';
 
 export function createNetworkProxy(): NetworkProxy {
   let mocks: ForgedResponse[] = [];
-  let logger: (mock: ForgedResponse) => void = (mock) => {};
-  let tracker: Tracker = (targetKey, mocks, ...args) => {
+  let logger: Logger = (id, value) => {};
+  let tracker: Tracker = (targetKey, mocks, logger, ...args) => {
     console.warn('Tracker is not setup');
     return () => {};
   };
@@ -19,8 +19,8 @@ export function createNetworkProxy(): NetworkProxy {
           });
         },
       }),
-    setMocks: (_mocks): void => void (mocks = _mocks),
-    setTracker: (_tracker): void => void (tracker = _tracker),
+    setMocks: (_mocks) => void (mocks = _mocks),
+    setTracker: (_tracker) => void (tracker = _tracker),
     setLogger: (_logger) => void (logger = _logger),
   };
 }

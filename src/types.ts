@@ -47,7 +47,7 @@ export interface Step<E> {
 }
 
 export interface ReservedSnapshot {
-  api: Record<string, any>;
+  network: Record<string, any>;
 }
 
 export interface Snapshot extends ReservedSnapshot {
@@ -77,7 +77,7 @@ export interface Tracker {
 }
 
 export interface Logger {
-  (mock: ForgedResponse): void;
+  (id: string, value: unknown): void;
 }
 
 export interface NetworkProxy {
