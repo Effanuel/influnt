@@ -5,7 +5,7 @@ import {showToast} from './mocks/toast';
 
 const toastSpy = spyModule('toast', {
   module: showToast,
-  parseArgs: (value) => value,
+  parseArgs: (value) => ({message: value[0]}),
 });
 
 jest.mock('./mocks/toast', () => {
@@ -41,11 +41,11 @@ describe('spyModules', () => {
 
   it('should log toast', async () => {
     const result = await render().press('Success');
-    expect(result).toEqual({toast: [{args: ['Success!']}]});
+    expect(result).toEqual({toast: [{message: 'Success!'}]});
   });
 
   it('should log 2 toasts', async () => {
     const result = await render().press('Success').press('Error');
-    expect(result).toEqual({toast: [{args: ['Success!']}, {args: ['Error!']}]});
+    expect(result).toEqual({toast: [{message: 'Success!'}, {message: 'Error!'}]});
   });
 });

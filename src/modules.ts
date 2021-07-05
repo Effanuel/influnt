@@ -4,7 +4,7 @@ export function spyModule(id: string, {module, parseArgs}: SpyModuleConfig): Spy
   return () => {
     const accumulator: ReturnType<SpyModule> = {[id]: []};
     (module as jest.SpyInstance<void, any[]>).mockImplementation((...args: unknown[]) => {
-      accumulator[id].push({args: parseArgs(args)});
+      accumulator[id].push(parseArgs(args));
     });
     return accumulator;
   };
