@@ -11,9 +11,9 @@
 npm install --save-dev influnt
 ```
 
-### Examples:
+### Counter Example:
 ```tsx
-// Counter.tsx
+// CounterComponent.tsx
 function CounterComponent() {
   const [counter, setCounter] = React.useState<number>(0);
 
@@ -33,12 +33,14 @@ function CounterComponent() {
   );
 }
 
-//Counter.spec.ts
-//This variable should be shared between different tests and not be local
+// in a general test env setup file
 const createRenderer = configureInflunt({});
-const render = createRenderer(CounterComponent, {}); // Create test case specific renderer
 
-describe('Counter', () => {
+// CounterComponent.spec.ts
+
+describe('CounterComponent', () => {
+  const render = createRenderer(CounterComponent, {}); // Create test case specific renderer
+  
   it('should increment a counter', async () => {
     const result = await render()
       .inspect({counterBefore: textOf('Counter-test-id')})
@@ -55,6 +57,57 @@ describe('Counter', () => {
       .inspect({counterAfter: textOf('Counter-test-id')});
 
     expect(result).toEqual({counterBefore: '0', counterAfter: '-1'});
+  });
+});
+
+```
+
+### Passing props Example:
+```tsx
+
+// MyComponent.tsx
+interface Props {
+  title: string;
+  showButton: boolean;
+}
+
+function MyComponent({title, showButton}: Props) {
+  return (
+    <div>
+      <span data-testid="Title1">{title}</span>
+      {showButton && <button data-testid="Button1">ButtonText</button>}
+    </div>
+  );
+}
+
+// in a general test env setup file
+const createRenderer = configureInflunt();
+
+// MyComponent.spec.ts
+const defaultProps = {title: 'DefaultTitle', showButton: false};
+
+describe('MyComponent', () => {
+  const render = createRenderer(MyComponent, {passProps: defaultProps});
+
+  it('should display title', async () => {
+    const result = await render()
+      .inspect({title: textOf('Title1')});
+      
+    expect(result).toEqual({title: 'DefaultTitle'});
+  });
+
+  it('should display title2', async () => {
+    const result = await render({passProps: {title: 'SuiteTitle'}})
+      .inspect({title: textOf('Title1')});
+      
+    expect(result).toEqual({title: 'SuiteTitle'});
+  });
+
+  it('should display a button and title', async () => {
+    const result = await render({passProps: {showButton: true}})
+      .inspect({buttonExists: exists('Button1'), title: textOf('Title1')});
+      
+    expect(result).toEqual({buttonExists: true, title: 'DefaultTitle'});
   });
 });
 
