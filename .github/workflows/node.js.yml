@@ -11,11 +11,13 @@ on:
 
 jobs:
   build:
+    continue-on-error: ${{ matrix.react != 'latest' }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node: [12, 14, 16]
+        react: [latest, next, experimental]
 
     steps:
       - uses: actions/checkout@v2

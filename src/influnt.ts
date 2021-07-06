@@ -67,6 +67,14 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     });
   }
 
+  click(testID: string): this {
+    return this.registerStep(({locateAll}) => {
+      const found = locateAll(testID);
+      if (!(found?.getAttribute('disabled') === null)) throw new Error('Can`t click on disabled button.');
+      found.click();
+    });
+  }
+
   inputText(testID: string, value: string | number): this {
     return this.registerStep(({locateAll}) => {
       const found = locateAll(testID);
@@ -81,6 +89,14 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
         this.snapshot[key as keyof Snapshot] = assert(context);
       }
     });
+  }
+
+  selectOption(testID: string, value: string) {
+    this.steps.push(({locateAll}) => {
+      const found = locateAll(testID);
+      fireEvent.change(found, {target: {value}});
+    });
+    return this;
   }
 
   resolve(forgedPromise: ForgedResponse) {

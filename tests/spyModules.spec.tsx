@@ -30,7 +30,10 @@ function TestComponent() {
   );
 }
 
-const createRenderer = configureInflunt({spyModules: [toastSpy]});
+const createRenderer = configureInflunt({
+  spyModules: [toastSpy],
+});
+
 const render = createRenderer(TestComponent);
 
 describe('spyModules', () => {
