@@ -1,7 +1,10 @@
 // Using interfaces for performance reasons
 import {Matcher, RenderResult} from '@testing-library/react';
 
+export type ExtraArgs<E> = E extends void ? void : E;
+
 export interface ForgedResponse<P extends unknown[] = unknown[], R = unknown> {
+  readonly _signature: symbol;
   id: string;
   response: R;
   params: P;
@@ -15,20 +18,18 @@ interface CommonSettings {
 }
 
 export interface InfluntSettings<E> extends CommonSettings {
-  providerHoc?: (
-    extraArgs: E extends void ? void : E,
-  ) => <C>(args: React.ComponentType<InferProps<C>>) => React.ComponentType<InferProps<C>>;
+  providerHoc?: (extraArgs: ExtraArgs<E>) => <C>(args: React.ComponentType<InferProps<C>>) => React.ComponentType<InferProps<C>>;
   networkProxy?: NetworkProxy;
 }
 
 export interface ComponentSettings<P, E> extends CommonSettings {
   passProps?: P;
-  extraArgs?: E extends void ? void : E;
+  extraArgs?: () => ExtraArgs<E>;
 }
 
 export interface SuiteSettings<P, E> extends CommonSettings {
   passProps?: Partial<P>;
-  extraArgs?: E extends void ? void : E;
+  extraArgs?: ExtraArgs<E>;
 }
 
 export interface Inspector<T, C = unknown> {

@@ -20,7 +20,11 @@ export function respond<P extends unknown[]>(responseId: string, params: [...P])
   return {
     with<R>(response: R): ForgedResponse<P, R> {
       const [promise, resolve] = createDeferredPromise<R>();
-      return {id: responseId, response, promise, resolve: () => resolve(response), params};
+      return {id: responseId, _signature: Symbol(responseId), response, promise, resolve: () => resolve(response), params};
     },
   };
+}
+
+export async function flushPromises() {
+  await new Promise(setImmediate);
 }

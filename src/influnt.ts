@@ -1,7 +1,7 @@
 import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
 import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
-import {isObject, toArray} from './util';
+import {flushPromises, isObject, toArray} from './util';
 
 export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   private steps: Step<E>[] = [];
@@ -10,6 +10,7 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   private settings: ComponentSettings<InferProps<C>, E>;
   private spyModulesInterop: ReturnType<SpyModule>[] = [];
   private mocks: ForgedResponse[];
+  private lazyMocks: ForgedResponse[];
   private extraArgs: E;
   private networkProxy?: NetworkProxy;
 
@@ -24,6 +25,7 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     this.spyModulesInterop = (settings.spyModules ?? []).map((module) => module());
     this.extraArgs = extraArgs;
     this.mocks = toArray(settings.mocks);
+    this.lazyMocks = toArray(settings.mocks);
     this.networkProxy = networkProxy;
   }
 
@@ -59,6 +61,15 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     return {...this.snapshot, ...this.parseSpyModuleInterop()};
   }
 
+  apply(...steps: Step<E>[]) {
+    steps.forEach((step) => {
+      this.registerStep(async (context) => {
+        await act(async () => void step(context));
+      });
+    });
+    return this;
+  }
+
   press(testID: string): this {
     return this.registerStep(({locateAll}) => {
       const found = locateAll(testID);
@@ -73,6 +84,20 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
       if (!(found?.getAttribute('disabled') === null)) throw new Error('Can`t click on disabled button.');
       found.click();
     });
+  }
+
+  toggle(testID: string, value: string) {
+    this.steps.push(({locateAll}) => {
+      const found = locateAll(testID);
+      const radioNode = [...found.childNodes].find(({textContent}) => textContent === value);
+
+      if (!radioNode) {
+        console.error(`Radio with value ${value} cannot be found.`);
+      } else {
+        fireEvent.click(radioNode);
+      }
+    });
+    return this;
   }
 
   inputText(testID: string, value: string | number): this {
@@ -100,6 +125,12 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   }
 
   resolve(forgedPromise: ForgedResponse) {
+    const eagerForgedSignatures = this.mocks.map((mock) => mock._signature);
+    if (eagerForgedSignatures.includes(forgedPromise._signature)) {
+      console.error(`Mock ${forgedPromise.id}`, forgedPromise.params, 'has already been registered as an eager mock ({mocks})');
+    } else {
+      this.mocks.push(forgedPromise);
+    }
     return this.registerStep(async () => {
       await act(async () => void forgedPromise.resolve());
     });
@@ -113,9 +144,13 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
   }
 
   async then(resolve: (value: Snapshot) => Promise<never>, reject: (value: unknown) => Promise<never>) {
-    const context = this.getContext();
     this.networkProxy?.setLogger((id, value) => void this.snapshot.network.push({[id]: value}));
+    this.networkProxy?.setMocks(this.mocks);
+    this.lazyMocks.forEach((mock) => void mock.resolve());
 
+    const context = this.getContext();
+
+    await act(flushPromises);
     try {
       for (const step of this.steps) {
         await step(context);
