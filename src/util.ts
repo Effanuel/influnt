@@ -26,5 +26,5 @@ export function respond<P extends unknown[]>(responseId: string, params: [...P])
 }
 
 export async function flushPromises() {
-  await new Promise(setImmediate);
+  await new Promise((resolve) => void setTimeout(resolve));
 }

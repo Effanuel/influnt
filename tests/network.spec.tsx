@@ -30,9 +30,7 @@ describe('network', () => {
   it('should send a network request if submit is pressed', async () => {
     const mock = respond('getTodos', ['Id1', 100]).with({data: {todos: [{id: 1, text: 'SampleTodoText'}]}});
 
-    const result = await render({mocks: [mock]})
-      .press('Submit')
-      .resolve(mock);
+    const result = await render().press('Submit').resolve(mock);
 
     expect(result).toEqual({
       network: [{getTodos: ['Id1', 100]}],

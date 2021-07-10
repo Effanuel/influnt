@@ -1,5 +1,6 @@
 import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
+import {inputText, press, selectOption, toggle} from './action-steps';
 import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
 import {flushPromises, isObject, toArray} from './util';
 
@@ -70,42 +71,15 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     return this;
   }
 
-  press(testID: string): this {
-    return this.registerStep(({locateAll}) => {
-      const found = locateAll(testID);
-      if (!(found?.getAttribute('disabled') === null)) throw new Error('Can`t press on disabled button.');
-      found.click();
-    });
-  }
+  press = (testID: string) => this.registerStep(press(testID));
 
-  click(testID: string): this {
-    return this.registerStep(({locateAll}) => {
-      const found = locateAll(testID);
-      if (!(found?.getAttribute('disabled') === null)) throw new Error('Can`t click on disabled button.');
-      found.click();
-    });
-  }
+  click = (testID: string) => this.registerStep(press(testID));
 
-  toggle(testID: string, value: string) {
-    this.steps.push(({locateAll}) => {
-      const found = locateAll(testID);
-      const radioNode = [...found.childNodes].find(({textContent}) => textContent === value);
+  toggle = (testID: string, value: string) => this.registerStep(toggle(testID, value));
 
-      if (!radioNode) {
-        console.error(`Radio with value ${value} cannot be found.`);
-      } else {
-        fireEvent.click(radioNode);
-      }
-    });
-    return this;
-  }
+  inputText = (testID: string, value: string | number) => this.registerStep(inputText(testID, value));
 
-  inputText(testID: string, value: string | number): this {
-    return this.registerStep(({locateAll}) => {
-      const found = locateAll(testID);
-      fireEvent.change(found, {target: {value: String(value)}});
-    });
-  }
+  selectOption = (testID: string, value: string) => this.registerStep(selectOption(testID, value));
 
   inspect(inspection: Record<string, Inspector<unknown, E>>): this {
     return this.registerStep((context) => {
@@ -114,14 +88,6 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
         this.snapshot[key as keyof Snapshot] = assert(context);
       }
     });
-  }
-
-  selectOption(testID: string, value: string) {
-    this.steps.push(({locateAll}) => {
-      const found = locateAll(testID);
-      fireEvent.change(found, {target: {value}});
-    });
-    return this;
   }
 
   resolve(forgedPromise: ForgedResponse) {

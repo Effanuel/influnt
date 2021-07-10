@@ -38,7 +38,7 @@ export interface Inspector<T, C = unknown> {
 
 export interface Context<E> {
   node: RenderResult;
-  locateAll: (testID: Matcher, options?: {index?: number}) => HTMLElement;
+  locateAll: (testID: Matcher, options?: {index: number}) => HTMLElement;
   extraArgs: E;
 }
 
