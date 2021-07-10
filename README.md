@@ -68,6 +68,8 @@ Return false, if a node doesn't have a `disabled` attribute
 
 ---
 
+You can also create your own inspector, just `import type {Inspector} from 'influnt'`. Examples can be seen [here](https://github.com/Effanuel/influnt/blob/master/src/inspectors.ts)
+
 ### Counter Example:
 ```tsx
 // CounterComponent.tsx
