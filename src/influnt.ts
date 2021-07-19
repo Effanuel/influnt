@@ -1,6 +1,6 @@
 import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
-import {inputText, press, selectOption, toggle} from './action-steps';
+import {inputText, press, toggle} from './action-steps';
 import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
 import {flushPromises, isObject, toArray} from './util';
 
@@ -62,12 +62,17 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     return {...this.snapshot, ...this.parseSpyModuleInterop()};
   }
 
-  apply(...steps: Step<E>[]) {
+  execute(...steps: Step<E>[]) {
     steps.forEach((step) => {
       this.registerStep(async (context) => {
         await act(async () => void step(context));
       });
     });
+    return this;
+  }
+
+  apply(operations: (engine: this) => void) {
+    operations(this);
     return this;
   }
 
@@ -79,7 +84,7 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
 
   inputText = (testID: string, value: string | number) => this.registerStep(inputText(testID, value));
 
-  selectOption = (testID: string, value: string) => this.registerStep(selectOption(testID, value));
+  selectOption = (testID: string, value: string | number) => this.registerStep(inputText(testID, value));
 
   inspect(inspection: Record<string, Inspector<unknown, E>>): this {
     return this.registerStep((context) => {

@@ -28,10 +28,3 @@ export const toggle =
       fireEvent.click(radioNode);
     }
   };
-
-export const selectOption =
-  <E>(testID: string, value: string): Step<E> =>
-  ({locateAll}) => {
-    const found = locateAll(testID);
-    fireEvent.change(found, {target: {value}});
-  };

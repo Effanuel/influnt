@@ -8,7 +8,7 @@ export function hocFacade<P extends Record<string, unknown>>(config: HocFacadeCo
   return function <C extends React.ComponentType<InferProps<C>>>(WrappedComponent: React.ComponentType<any>): C {
     class WithProviders extends React.PureComponent<InferProps<C>> {
       render() {
-        return config.providers.reduce((node, HocProvider) => {
+        return config.providers.reverse().reduce((node, HocProvider) => {
           if (Array.isArray(HocProvider)) {
             const [Component, {props}] = HocProvider;
             return <Component {...props}>{node}</Component>;
