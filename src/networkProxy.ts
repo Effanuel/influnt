@@ -4,17 +4,20 @@ export function createNetworkProxy(): NetworkProxy {
   let mocks: ForgedResponse[] = [];
   let logger: Logger = (id, value) => {};
   let tracker: Tracker = (targetKey, mocks, logger, ...args) => {
-    console.warn('Tracker is not setup');
+    console.warn('Tracker is not initialized. Call .setTracker');
     return () => {};
   };
   return {
-    setNetworkTarget: (networkTarget) =>
+    setNetworkTarget: (networkTarget, trackerArg) =>
       new Proxy(networkTarget, {
         construct(target, args) {
           const obj = new target(...args);
           return new Proxy(obj, {
             get(target, key) {
-              return (...args: unknown[]) => tracker(key, mocks, logger, ...args);
+              return (...args: unknown[]) => {
+                const trackerFactory = trackerArg ?? tracker;
+                trackerFactory(key, mocks, logger, ...args);
+              };
             },
           });
         },

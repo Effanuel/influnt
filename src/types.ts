@@ -76,7 +76,7 @@ export interface Logger {
 }
 
 export interface NetworkProxy {
-  setNetworkTarget: (networkTarget: Constructor) => Constructor<Record<string, unknown>>;
+  setNetworkTarget: (networkTarget: Constructor, tracker?: Tracker) => Constructor<Record<string, unknown>>;
   setMocks: (mocks: ForgedResponse[]) => void;
   setTracker: (tracker: Tracker) => void;
   setLogger: (logger: Logger) => void;
