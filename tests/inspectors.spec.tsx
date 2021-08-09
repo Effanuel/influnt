@@ -1,6 +1,6 @@
 import React from 'react';
 import {configureInflunt} from '../src/main';
-import {countOf, exists, isDisabled, textOf} from '../src/inspectors';
+import {countOf, exists, isDisabled, textOf, textOfAll} from '../src/inspectors';
 
 function TestComponent() {
   return (
@@ -20,6 +20,10 @@ function TestComponent() {
           <span>6</span>
         </span>
       </span>
+      <span data-testid="TitleX">ABC</span>
+      <span data-testid="TitleX">DEF</span>
+      <span data-testid="TitleX">GHI</span>
+      <span data-testid="TitleX">JKL</span>
       <footer data-testid="Footer">Footer text</footer>
       {true && <div data-testid="Visible">Visible</div>}
       {false && <div data-testid="Hidden">Hidden</div>}
@@ -45,6 +49,11 @@ describe('Inspectors', () => {
   it('textOf', async () => {
     const result = await render().inspect({title1: textOf('Title1'), title2: textOf('Title2'), title3: textOf('Title3')});
     expect(result).toEqual({title1: 'Title 1 Text', title2: 'HelloWorld', title3: '134256'});
+  });
+
+  it('textOfAll', async () => {
+    const result = await render().inspect({title: textOfAll('TitleX')});
+    expect(result).toEqual({title: ['ABC', 'DEF', 'GHI', 'JKL']});
   });
 
   it('exists', async () => {

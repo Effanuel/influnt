@@ -81,3 +81,7 @@ export interface NetworkProxy {
   setTracker: (tracker: Tracker) => void;
   setLogger: (logger: Logger) => void;
 }
+
+export interface MatcherOptions {
+  index: number;
+}

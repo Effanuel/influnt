@@ -1,10 +1,10 @@
 import {fireEvent} from '@testing-library/react';
-import {Step} from './types';
+import {Step, MatcherOptions} from './types';
 
 export const press =
-  <E>(testID: string): Step<E> =>
+  <E>(testID: string, options?: MatcherOptions): Step<E> =>
   ({locateAll}) => {
-    const found = locateAll(testID);
+    const found = locateAll(testID, options);
     if (!(found?.getAttribute('disabled') === null)) throw new Error('Can`t press on disabled button.');
     found.click();
   };
@@ -17,9 +17,9 @@ export const inputText =
   };
 
 export const toggle =
-  <E>(testID: string, value: string): Step<E> =>
+  <E>(testID: string, value: string, options?: MatcherOptions): Step<E> =>
   ({locateAll}) => {
-    const found = locateAll(testID);
+    const found = locateAll(testID, options);
     const radioNode = [...found.childNodes].find(({textContent}) => textContent === value);
 
     if (!radioNode) {
