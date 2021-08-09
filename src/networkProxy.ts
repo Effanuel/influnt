@@ -16,7 +16,7 @@ export function createNetworkProxy(): NetworkProxy {
             get(target, key) {
               return (...args: unknown[]) => {
                 const trackerFactory = trackerArg ?? tracker;
-                trackerFactory(key, mocks, logger, ...args);
+                return trackerFactory(key, mocks, logger, ...args);
               };
             },
           });
