@@ -61,7 +61,7 @@ export interface SpyModule extends Brand {
 export interface SpyModuleConfig {
   module: any;
   parseArgs: (value: any[]) => any;
-  returned?: any;
+  actual?: any;
 }
 
 export interface HocFacadeConfig<P extends Record<string, unknown>> {
