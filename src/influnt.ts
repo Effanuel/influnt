@@ -1,7 +1,7 @@
 import {act, fireEvent, Matcher, render} from '@testing-library/react';
 import React from 'react';
 import {inputText, press, toggle} from './action-steps';
-import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy} from './types';
+import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy, MatcherOptions} from './types';
 import {flushPromises, isObject, toArray} from './util';
 
 export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
@@ -76,11 +76,11 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
     return this;
   }
 
-  press = (testID: string) => this.registerStep(press(testID));
+  press = (testID: string, options?: MatcherOptions) => this.registerStep(press(testID, options));
 
-  click = (testID: string) => this.registerStep(press(testID));
+  click = (testID: string, options?: MatcherOptions) => this.registerStep(press(testID, options));
 
-  toggle = (testID: string, value: string) => this.registerStep(toggle(testID, value));
+  toggle = (testID: string, value: string, options?: MatcherOptions) => this.registerStep(toggle(testID, value, options));
 
   inputText = (testID: string, value: string | number) => this.registerStep(inputText(testID, value));
 
