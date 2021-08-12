@@ -58,11 +58,7 @@ export interface SpyModule extends Brand {
   (): {[key: string]: any};
 }
 
-export interface SpyModuleConfig {
-  module: any;
-  parseArgs: (value: any[]) => any;
-  actual?: any;
-}
+export type SpyModuleConfig = {module: any; parseArgs: (value: any[]) => any} | {factory: (logger: (...args: any[]) => void) => void};
 
 export interface HocFacadeConfig<P extends Record<string, unknown>> {
   providers: (React.ComponentType<any> | [React.ComponentType<any>, {props: P}])[];
