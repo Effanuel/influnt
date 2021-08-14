@@ -10,7 +10,7 @@ export function spyModule(id: string, config: SpyModuleConfig): SpyModule {
       });
     }
     if ('factory' in config) {
-      config.factory((...args) => accumulator[id].push(args));
+      config.factory((args) => accumulator[id].push(args));
     }
     return accumulator;
   };
