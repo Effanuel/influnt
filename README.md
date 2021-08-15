@@ -6,71 +6,44 @@
 [![CI](https://github.com/Effanuel/influnt/actions/workflows/node.js.yml/badge.svg?branch=master)](https://github.com/Effanuel/influnt/actions/workflows/node.js.yml)
 
 
-### Install:
+### Install
 ```sh
 npm install --save-dev influnt
 ```
 
 
-### Misc:
+### Misc
 * Nodes are found using [`node.queryAllByTestId(testID)`](https://testing-library.com/docs/queries/about#types-of-queries)
 
-## Actions:
-```ts
-press(testID: string) | click(testID: string)
-```
-Triggers `node.click()` event on a found node
+## Actions
 
----
-```ts
-inputText(testID: string, value: string | number) | selectOption(testID: string, value: string | number)
-```
-Triggers [`fireEvent.change(found, {target: {value: String(value)}})`](https://github.com/testing-library/dom-testing-library/blob/main/src/event-map.js#L59) event on a found node
-
----
-```ts
-toggle(testID: string, value: string)
-```
-Triggers `fireEvent.click(radioNode)` on a radio node that is found by text content *(`value` argument)*
-
----
-```ts
-inspect(inspection: Record<string, Inspector<unknown, ExtraArgument>>)
-```
-Used for inspecting and later asserting a certain component state using inspectors *(see Inspectors section)*
-
----
-
+* `press(testID: string)`
+   * Triggers `node.click()` event on a found node;
+* `inputText(testID: string, value: string | number)`
+   * Triggers [`fireEvent.change(found, {target: {value: String(value)}})`](https://github.com/testing-library/dom-testing-library/blob/main/src/event-map.js#L59) event on a found node;
+* `selectOption(testID: string, value: string | number)`
+   * Triggers [`fireEvent.change(found, {target: {value: String(value)}})`](https://github.com/testing-library/dom-testing-library/blob/main/src/event-map.js#L59) event on a found node;
+* `toggle(testID: string, value: string)`
+   * Triggers `fireEvent.click(radioNode)` on a radio node that is found by text content *(`value` argument)*;
+* `inspect(inspection: Record<string, Inspector<unknown, ExtraArgument>>)`
+   *  Used for inspecting and later asserting a certain component state using inspectors *(see Inspectors section)*;
 
 ## Inspectors
-```ts
-exists(testID: string): Inspector<boolean>
-```
-Returns a boolean if a node was matched by that testID
 
----
-```ts
-textOf(testID: string): Inspector<string>
-```
-Returns a string using `node.textContent` value
-
----
-```ts
-countOf(testID: string): Inspector<number>
-```
-Returns the length of number of nodes found by testID
-
----
-```ts
-isDisabled(testID: string): Inspector<boolean>
-```
-Return false, if a node doesn't have a `disabled` attribute
-
----
+* `exists(testID: string): Inspector<boolean>`
+   * Returns a boolean if a node was matched by that testID;
+* `textOf(testID: string): Inspector<string>`
+   * Returns a string using `node.textContent` value;
+* `textOfAll(testID: string): Inspector<string[]>`
+   * Returns an array of text found by `node.textContent`;
+* `countOf(testID: string): Inspector<number>`
+   * Returns the length of number of nodes found by testID;
+* `isDisabled(testID: string): Inspector<boolean>`
+   * Return false, if a node doesn't have a `disabled` attribute.
 
 You can also create your own inspector, just `import type {Inspector} from 'influnt'`. Examples can be seen [here](https://github.com/Effanuel/influnt/blob/master/src/inspectors.ts)
 
-### Counter Example:
+### Increment/Decrement Counter Example:
 ```tsx
 // CounterComponent.tsx
 function CounterComponent() {
