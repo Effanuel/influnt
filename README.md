@@ -143,3 +143,67 @@ describe('MyComponent', () => {
 });
 
 ```
+
+### Spying on a module
+
+```ts
+
+// TestComponent.tsx
+import React from 'react';
+import {showToast} from '<path>'; // function that is responsible for showing a toast
+
+export default function TestComponent() {
+  const showSuccessToast = () => showToast('Success!');
+  const showErrorToast = () => showToast('Error!');
+
+  return (
+    <div>
+      <button data-testid="Success" onClick={showSuccessToast}>
+        Show success toast
+      </button>
+      <button data-testid="Error" onClick={showErrorToast}>
+        Show error toast
+      </button>
+    </div>
+  );
+}
+
+// jest setup file
+jest.mock('<path-to-file-that-exports-showToast-function>', () => {
+  const actual = jest.requireActual('<path-to-file-that-exports-showToast-function>');
+  Object.assign(actual, {showToast: jest.fn()});
+  return actual;
+});
+
+// influnt.ts file
+import {configureInflunt, spyModule} from 'influnt';
+
+const toastSpy = spyModule('toast', {
+  module: showToast,
+  parseArgs: (value) => ({message: value[0]}), // extract only the information that is relevant to us for logging
+});
+
+export const createRenderer = configureInflunt({
+  spyModules: [toastSpy], // Register toastSpy for all tests
+});
+
+
+// TestComponent.spec.ts
+import {createRenderer} from './influnt.ts';
+import TestComponent from './TestComponent.tsx';
+
+const render = createRenderer(TestComponent);
+
+describe('spyModules', () => {
+  it('should show success toast', async () => {
+    const result = await render().press('Success');
+    expect(result).toEqual({toast: [{message: 'Success!'}]});
+  });
+
+  it('should show success and error toasts', async () => {
+    const result = await render().press('Success').press('Error');
+    expect(result).toEqual({toast: [{message: 'Success!'}, {message: 'Error!'}]});
+  });
+});
+
+```
