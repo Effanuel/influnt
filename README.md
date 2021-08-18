@@ -41,7 +41,7 @@ npm install --save-dev influnt
 * `isDisabled(testID: string): Inspector<boolean>`
    * Return false, if a node doesn't have a `disabled` attribute.
 
-All usage examples can be seen [here](https://github.com/Effanuel/influnt/wiki/Examples)
+All usage examples can be seen [here](https://github.com/Effanuel/influnt/wiki)
 
 ### Increment/Decrement Counter Example:
 ```tsx
@@ -146,7 +146,7 @@ describe('MyComponent', () => {
 
 ### Spying on a module
 
-```ts
+```tsx
 
 // TestComponent.tsx
 import React from 'react';
