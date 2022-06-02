@@ -1,5 +1,5 @@
 // Using interfaces for performance reasons
-import {Matcher, RenderResult} from '@testing-library/react';
+// import {Matcher, RenderResult} from '@testing-library/react-native';
 
 export type ExtraArgs<E> = E extends void ? void : E;
 
@@ -37,8 +37,8 @@ export interface Inspector<T, C = unknown> {
 }
 
 export interface Context<E> {
-  node: RenderResult;
-  locateAll: (testID: Matcher, options?: {index: number}) => HTMLElement;
+  node: any;
+  locateAll: (testID: string, options?: {index: number}) => HTMLElement;
   extraArgs: E;
 }
 
