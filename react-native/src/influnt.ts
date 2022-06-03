@@ -1,6 +1,7 @@
 import {act, fireEvent, render} from '@testing-library/react-native';
 import React from 'react';
-import {inputText, press, toggle} from './action-steps';
+import {ReactTestRendererJSON} from 'react-test-renderer';
+import {inputText, press} from './action-steps';
 import {Context, ComponentSettings, Inspector, Step, Snapshot, SpyModule, ForgedResponse, NetworkProxy, MatcherOptions} from './types';
 import {flushPromises, isObject, toArray} from './util';
 
@@ -44,9 +45,18 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
       if (found.length > 1 && options?.index === undefined) throw new Error(`Multiple elements for testID={${testID}} were found.`);
       if (index > found.length) throw new Error(`Matching index out of range.`);
       if (!found.length) throw new Error(`Element with testID={${testID}} was not found.`);
-      return found[index];
+      return found as ReactTestRendererJSON[];
     };
-    return {node, locateAll, extraArgs: this.extraArgs};
+
+    const locate = (testID: string, options?: {index?: number}): ReactTestRendererJSON => {
+      const index = options?.index ?? 0;
+      const found = node.queryAllByTestId(testID);
+      if (found.length > 1 && options?.index === undefined) throw new Error(`Multiple elements for testID={${testID}} were found.`);
+      if (index > found.length) throw new Error(`Matching index out of range.`);
+      if (!found.length) throw new Error(`Element with testID={${testID}} was not found.`);
+      return found[options?.index ?? 0] as ReactTestRendererJSON;
+    };
+    return {node, locateAll, locate, extraArgs: this.extraArgs};
   };
 
   private parseSpyModuleInterop() {
@@ -81,7 +91,7 @@ export class InfluntEngine<E, C extends React.ComponentType<InferProps<C>>> {
 
   click = (testID: string, options?: MatcherOptions) => this.registerStep(press(testID, options));
 
-  toggle = (testID: string, value: string, options?: MatcherOptions) => this.registerStep(toggle(testID, value, options));
+  //   toggle = (testID: string, value: string, options?: MatcherOptions) => this.registerStep(toggle(testID, value, options));
 
   inputText = (testID: string, value: string | number) => this.registerStep(inputText(testID, value));
 

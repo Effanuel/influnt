@@ -1,6 +1,8 @@
 // Using interfaces for performance reasons
 // import {Matcher, RenderResult} from '@testing-library/react-native';
 
+import type {ReactTestRendererJSON} from 'react-test-renderer';
+
 export type ExtraArgs<E> = E extends void ? void : E;
 
 export interface ForgedResponse<P extends unknown[] = unknown[], R = unknown> {
@@ -38,7 +40,8 @@ export interface Inspector<T, C = unknown> {
 
 export interface Context<E> {
   node: any;
-  locateAll: (testID: string, options?: {index: number}) => HTMLElement;
+  locateAll: (testID: string, options?: {index: number}) => ReactTestRendererJSON[];
+  locate: (testID: string, options?: {index: number}) => ReactTestRendererJSON;
   extraArgs: E;
 }
 
